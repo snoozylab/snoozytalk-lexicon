@@ -1,0 +1,4 @@
+* text=auto eol=lf
+lexicon.ts linguist-generated=true
+glosses.ts linguist-generated=true
+data/*.json linguist-generated=true
