@@ -1,9 +1,11 @@
-/* Exports lexicon.ts and glosses.ts to plain JSON (data/lexicon.json, data/glosses.json).
+/* Exports lexiconData.ts, glossData.ts and suggestPoolData.ts to plain JSON (data/lexicon.json, data/glosses.json,
+   data/suggest-pool.json).
    Run from the repository root:  npx tsx scripts/export-json.ts  (or: node --experimental-strip-types scripts/export-json.ts)
    One record per line so diffs between versions stay readable. */
 import { mkdirSync, writeFileSync } from "node:fs";
-import { LEXICON_VERSION, LEXICON_ID_HASH, LEVEL_ORDER, lexiconIds, getLexEntry } from "../lexicon.ts";
-import { glossCount, getGloss, hasGloss } from "../glosses.ts";
+import { LEXICON_VERSION, LEXICON_ID_HASH, LEVEL_ORDER, lexiconIds, getLexEntry } from "../lexiconData.ts";
+import { glossCount, getGloss, hasGloss } from "../glossData.ts";
+import { POOL_FIELDS, POOL_SOURCES, poolEntries } from "../suggestPoolData.ts";
 
 const entries = lexiconIds.map((id) => {
   const entry = getLexEntry(id);
@@ -32,4 +34,10 @@ writeFileSync(
   `{\n  "version": ${JSON.stringify(LEXICON_VERSION)},\n  "license": "CC-BY-SA-4.0",\n  "count": ${glosses.length},\n  "glosses": ${records(glosses).replace(/\n/g, "\n  ")}\n}\n`,
 );
 
-console.log(`lexicon: ${entries.length} entries, glosses: ${glosses.length}`);
+const pool = poolEntries.map(({ id, level, priority, src, fields }) => ({ id, level, priority, src, fields }));
+writeFileSync(
+  "data/suggest-pool.json",
+  `{\n  "version": ${JSON.stringify(LEXICON_VERSION)},\n  "license": "CC-BY-SA-4.0",\n  "sources": ${JSON.stringify(POOL_SOURCES)},\n  "fields": ${JSON.stringify(POOL_FIELDS)},\n  "count": ${pool.length},\n  "entries": ${records(pool).replace(/\n/g, "\n  ")}\n}\n`,
+);
+
+console.log(`lexicon: ${entries.length} entries, glosses: ${glosses.length}, suggestion pool: ${pool.length}`);
